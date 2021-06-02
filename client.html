@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+
+        <h1 id='whoami'></h1>
+
+        Send Message
+        <br>
+        <input id='send' type="text">
+        <button onclick="sendToController()">Send Message To Controller</button>
+        <button onclick="sendToClients()">Send Message To Clients</button>
+        <br>
+        Messages
+
+        <div id="messages"></div>
+
+        <script>
+
+            document.getElementById('whoami').innerHTML=window.name
+
+            addSentMessage=(to)=>{
+                div = document.createElement('div');
+                div.innerHTML=`Me→${to}: ${document.getElementById('send').value}`
+                document.getElementById('messages').appendChild(div)
+            }
+
+            sendToController = ()=>{
+                window.parent.postMessage({source:window.name,message:document.getElementById('send').value,type:'controller'},'*');
+                addSentMessage('Controller')
+            }
+
+            sendToClients = ()=>{
+                window.parent.postMessage({source:window.name,message:document.getElementById('send').value,type:'sendToClients'},'*');
+                addSentMessage('Clients')
+            }
+
+            window.addEventListener("message", event => {
+                div = document.createElement('div');
+                div.innerHTML=event.data.message;
+                document.getElementById('messages').appendChild(div)
+            }, false);
+
+            window.parent.postMessage({source:window.name,type:'init'},'*');
+        </script>
+    </body>
+    
+</html>
