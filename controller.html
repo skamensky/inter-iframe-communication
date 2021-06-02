@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+
+<iframe width="30%" height="400" name="Client 1" id="Client 1" src="client.html"></iframe>
+
+<iframe width="30%" height="400" name="Client 2" id="Client 2" src="client.html"></iframe>
+
+
+<iframe width="30%" height="400" name="Client 3" id="Client 3" src="client.html"></iframe>
+
+<h1 style="text-align: center">Messages From Clients To Controller</h1>
+<div id="clientMessages"></div>
+<body>
+    <script>
+
+
+        sendToAllClientsBut = (message,but)=>{
+            document.querySelectorAll('iframe').forEach(frame=>{
+                if(frame.id!==but){
+                    sendMessage(`${but}: ${message}`,frame.id)
+                }
+            })
+        }
+
+        sendMessage=(message,frameId)=>{
+
+            try{
+                console.log(`Sending message to ${frameId}`)
+                document.getElementById(frameId).contentWindow.postMessage({message},"*");
+            }
+            catch(e){
+                console.log(e)
+            }
+        }
+
+        window.addEventListener("message", event => {
+                if(event.data.type=='controller'){
+                    div = document.createElement('div');
+                    div.innerHTML=`${event.data.source}: ${event.data.message}`
+                    document.getElementById('clientMessages').appendChild(div)
+                }
+                if(event.data.type==='init'){
+                    sendMessage(`Controller: Welcome ${event.data.source}!`,event.data.source)
+                }
+                if(event.data.type=='sendToClients'){
+                    sendToAllClientsBut(event.data.message,event.data.source);
+                }
+            }, false);
+    </script>
+</body>
+</html>
